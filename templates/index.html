@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ToDo</title>
+    <link rel="stylesheet" href="./static/main.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="heading">
+            <h1>ToDo List</h1>
+        </div>
+        <div class="enter-task">
+            <div class="list-form">
+                <input type="text" name="task" id="description" onkeypress="addToDoKey(event)" autocomplete="off">
+                <input type="button" id="addTask" name="button" value="Add" onclick="addToDo()">
+            </div>
+        </div>
+        <div class="todolist" id="todolist">
+        </div>
+    </div>
+    <script type="text/javascript" src="./static/index.js"></script>
+</body>
+</html>
