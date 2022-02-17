@@ -34,7 +34,8 @@ input[type=text]{
 }
 input[type=button]{
     width: 20%;
-    
+    font-size: 1em;
+    background-color: rgb(184, 186, 187);
 }
 .todolist{
     margin-top:30px;
@@ -42,6 +43,7 @@ input[type=button]{
     padding:5px;
     border: 1px solid beige;
     border-radius: 3%;
+    background-color: rgb(217, 217, 217);
 }
 .task{
     display: flex;
@@ -53,6 +55,7 @@ input[type=button]{
     align-items: center;
     /* flex-wrap: nowrap; */
     margin: 5px 0 5px 0;
+    background-color: rgb(233, 233, 233);
 }
 .task span{
     cursor:pointer;

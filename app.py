@@ -1,89 +1,87 @@
 from flask import Flask,request,render_template,jsonify
-import pandas
+from flask_sqlalchemy import SQLAlchemy
+
+
+
+from sqlalchemy import desc
 app=Flask(__name__)
+app.config['SECRET_KEY']='mysupersecretkey'
+app.config['SQLALCHEMY_DATABASE_URI']='postgresql://nnwhxofswdonpp:5fcdee82cc541c3cdbbdce26371c883a630600754bf82d0583faf1f57c76b289@ec2-54-164-22-242.compute-1.amazonaws.com:5432/d2phg86024slai'
+db=SQLAlchemy(app)
+from models import Task
 
 # the index route show the home/index page
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 #route to add tasks to csv
 @app.route('/add-todo',methods=['POST'])
 def addTask():
     #get request data from post request[description, status]
     request_task=request.json   
-    #create a dictionary to store the data for storing it in dataframe
-    task_details={"description":request_task.get("description"),"complete":request_task.get("status")}
-    #enter data into dataframe through dictionary
-    dataframe_taskdetails=pandas.DataFrame(task_details,columns=['description','complete'],index=['description']);
-    #error checking if the csv is not empty don't append headers
-    try:
-        if len(pandas.read_csv("toDo.csv"))>0:
-            
-            dataframe_taskdetails.to_csv("toDo.csv",mode="a",index=False,header=None)
-    #if csv is empty append with headers
-    except:
-        dataframe_taskdetails.to_csv("toDo.csv",mode="a",index=False)
     
-    return jsonify(request_task)
+    task_details={"id":int(request_task.get("id")),"description":request_task.get("description"),"complete":request_task.get("status")}
+    #create entry in database for given task
+    entry=Task(id=task_details["id"],description=task_details["description"],status=True if task_details["complete"]==1 else False)
+    db.session.add(entry)
+    db.session.commit()
+
+    
+    #return status
+    return jsonify([{"status":"OK"},{"task":request_task}])
+
 
 #route to get tasks which are not completed
 @app.route('/getTasks',methods=['GET'])
 def getTask():
-    try:
-        #get all the tasks from the csv and store in dataframe
-        task_details=pandas.read_csv("toDo.csv",index_col=False)
-        send_data=[]
-        #go through every row in csv
-        for i in range(0,len(task_details)):
-            
-            temp=[]
-            #if status is incomplete append it to temp and send to back
-            if task_details.loc[i,"complete"]==0:
-                temp.append(task_details.loc[i,"description"])
-                temp.append(str(task_details.loc[i,"complete"]))
-                send_data.append(temp)
+    #query database by status, where incomplete tasks are fetched
+    incomplete_task=Task.query.filter_by(status=False).order_by("id").all()
 
-        return jsonify(send_data)
-    except:
-        #if csv is empty send empty data
-        return jsonify([])
+    send_data=[]
+    for i in incomplete_task:
+        temp={}
+        temp["id"]=i.id
+        temp["description"]=i.description
+        send_data.append(temp)
+    # print(send_data)
+    #return list of task which are incomplete
+    return jsonify([{"status":"OK","tasks":send_data}])
+    
 
-#change update status for tasks
+
 @app.route("/updateStatus",methods=["POST"])
 def updateTasks():
     #get description whose status needs to be changed
     request_params=request.json;
-    #read from csv and store in dataframe
-    task_details=pandas.read_csv("toDo.csv")
+    print(request_params)
+    #get task by id
+    data=Task.query.filter_by(id=request_params).first()
 
-    #go through rows in csv and set status to complete/incomplete
-    for i in range(len(task_details)):
-        
-        if task_details.loc[i,"description"]==request_params:
-            if task_details.loc[i,"complete"]==1:
-                task_details.loc[i,"complete"]=0
-            else:
-                task_details.loc[i,"complete"]=1
+    # check if the task is completed or not and set accordingly
+    if data.status==True:
+        data.status=False
+    else:
+        data.status=True
 
-    task_details.to_csv("toDo.csv",index=False)
-    return jsonify([True])
+    #commit the changes
+    db.session.commit()
+    return jsonify([{"status":"OK"}])
 
-#delete task from csv
+
+
 @app.route("/deleteTask",methods=["POST"])
 def deleteTasks():
+    #delete unwanted tasks
     request_params=request.json;
-    task_details=pandas.read_csv("toDo.csv")
-    # go through rows which you need to delete
-    for i in range(len(task_details)):
-        if task_details.loc[i,"description"]==request_params:
-            task_details.drop(i,inplace=True)
-    #if the csv becomes empty after removing task delete the headers
-    if(len(task_details)==0):
-        task_details=pandas.DataFrame(list())
-    # save to csv changed tasks
-    task_details.to_csv("toDo.csv",index=False)
-    return jsonify([True])
+    #delete tasks with specific id
+    data_delete=Task.query.filter_by(id=int(request_params)).first()
+    db.session.delete(data_delete)
+    #commit changes
+    db.session.commit()
+
+    return jsonify({"status":"OK"})
 
 if __name__=="__main__":
     app.run(debug=True)
