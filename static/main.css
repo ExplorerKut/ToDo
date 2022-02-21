@@ -64,7 +64,16 @@ input[type=button]{
 }
 
 .task button{
-    width: 30px;
+    width: 35px;
+    /* padding:5px; */
+    margin:2px 2px;
+}
+.task input[type="text"]{
+    border: 0;
+    font-weight: bold;
+    font-size: 1.2em;
+    background-color: rgb(240, 170, 170);
+
 }
 .task input[type="checkbox"]{
     text-align: right;
@@ -76,9 +85,38 @@ input[type=button]{
     flex-wrap: nowrap;
     justify-content: right;
     align-items: center;
-    width:15%;
+    width:20%;
     text-align: right;
 }
-.task span.checked{
+.task input.checked{
     text-decoration: line-through;
+    background-color: rgb(144, 226, 144);
+}
+.completed-list{
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: 5px 5px 5px 5px;
+    background-color: rgb(233, 233, 233);
+    /* width: 500px;
+    margin: auto; */
+}
+
+.task-list{
+    background-color:rgb(144, 226, 144);
+    border:0.5px solid;
+    padding: 5px 5px 5px 5px;
+    margin: 1px;
+
+}
+.task-list{
+    padding:5px;
+    margin-bottom:5px;
+    /* margin:5px; */
+}
+.task-list button{
+    text-align: justify;
+    padding: 2px;
+    float: right;
 }
