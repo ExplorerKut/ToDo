@@ -1,4 +1,4 @@
-from asyncio.windows_events import NULL
+# from asyncio.windows_events import NULL
 from flask import Flask,request,render_template,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -64,6 +64,7 @@ def getTasks():
             temp={}
             temp["id"]=i.id
             temp["description"]=i.description
+            temp["date_updated"]=i.date_completed
             task_completed.append(temp)
         return jsonify([{"status":"OK","completed":"False","incompleteTasks":task_incomplete,"completeTask":task_completed}])
     #if incompleteTask are zero and complete task are more
@@ -74,6 +75,7 @@ def getTasks():
             temp={}
             temp["id"]=i.id
             temp["description"]=i.description
+            temp["date_updated"]=i.date_completed
             task_completed.append(temp)
         return jsonify([{"status":"OK","completed":"True","incompleteTasks":None,"completeTask":task_completed}])
     # if completeTask are not zero and incomplete task are zero
@@ -98,6 +100,7 @@ def updateStatus():
     # print(request_params)
     #get task by id
     data=Task.query.filter_by(id=request_params.get("value")).first()
+    # print(data)
     date_completed=datetime.strptime(request_params["updatedDate"],"%d %b %Y, %H:%M:%S")
     # check if the task is completed or not and set accordingly the completed date
     if data.status==True:
@@ -106,10 +109,11 @@ def updateStatus():
     else:
         data.status=True
         data.date_completed=date_completed
-
+    # print(data)
+    send_data={"id":data.id,"description":data.description,"date_updated":data.date_completed}
     #commit the changes
     db.session.commit()
-    return jsonify([{"status":"OK","completed":data.status}])
+    return jsonify([{"status":"OK","completed":data.status,"task":send_data}])
 
 
 
