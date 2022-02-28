@@ -72,7 +72,7 @@
         function sendCompletedList(val){
             let date= new Date();
             //send the formatted date
-            const formattedDate = date.toLocaleString("en-IN", {
+            const formattedDate = date.toLocaleString("en-GB", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
@@ -114,6 +114,7 @@
         function insertTaskComplete(item,taskDetails,pageLoad){
             // check if there are already task present for the current date, if no then create element and append else only create element
             let dateCreated;
+            console.log((new Date(item["date_updated"]+"+0530")))
             if(!document.getElementById((new Date(item["date_updated"]+"+0530")).toDateString())){
                 
                  dateCreated=document.createElement('div')
@@ -158,9 +159,13 @@
             
             let undoElement;
             let currTime=new Date()
+            // let currTime=Date.parse(Date().toLocaleString("en-IN", {
+            //     hour12: true
+            // }));
+            
             let completedate=new Date(item["date_updated"]+"+0530")
-             
-             
+            // let comDate=Date.parse(completedate.toLocaleString("en-IN"))
+            
              
              
             //check if the time elapsed is greater than 25 seconds or not
@@ -305,9 +310,9 @@
                 }
             }
             })
-            .catch((error)=>{
-                window.alert("error while getting task please refresh")
-            });
+            // .catch((error)=>{
+            //     window.alert("error while getting task please refresh")
+            // });
         }
         //add task on enter key press
         function addToDoKey(e){
@@ -342,7 +347,7 @@
             if(document.getElementById("description").value!='')
             {   
                 let date=new Date();
-                const formattedDate = date.toLocaleString("en-IN", {
+                const formattedDate = date.toLocaleString("en-GB", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",

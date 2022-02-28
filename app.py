@@ -24,13 +24,13 @@ def addTask():
     #get request data from post request[description, status]
     request_task=request.json   
     #convert date into correct format
-    task_creation_datetime=datetime.strptime(request_task["date"],"%d %b %Y, %H:%M:%S %p")
+    task_creation_datetime=datetime.strptime(request_task["date"],"%d %b %Y, %H:%M:%S")
 
     task_details={"id":request_task.get("id"),"description":request_task.get("description"),"complete":request_task.get("status"),"date_created":task_creation_datetime}
     #check if the Task is already present
     
     # alreadyPresent=Task.query.filter_by(description=task_details["description"]).all()
-    alreadyPresent=Task.query.filter(func.lower(Task.description)==task_details["description"].lower()).all()
+    alreadyPresent=Task.query.filter(func.lower(Task.description)==task_details["description"].lower(),func.date(Task.date_created)==task_creation_datetime.date()).all()
     if len(alreadyPresent)==0:
         #create entry in database for given task
         entry=Task(id=task_details["id"],description=task_details["description"],status=True if task_details["complete"]==1 else False,date_created=task_creation_datetime)
@@ -106,7 +106,7 @@ def updateStatus():
     #get task by id
     data=Task.query.filter_by(id=request_params.get("value")).first()
     # print(data)
-    date_completed=datetime.strptime(request_params["updatedDate"],"%d %b %Y, %H:%M:%S %p")
+    date_completed=datetime.strptime(request_params["updatedDate"],"%d %b %Y, %H:%M:%S")
     # check if the task is completed or not and set accordingly the completed date
     if data.status==True:
         data.status=False
