@@ -2,13 +2,15 @@
 from flask import Flask,request,render_template,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from sqlalchemy import desc
+# from sqlalchemy import aesc
+from datetime import datetime
+
 app=Flask(__name__)
 app.config['SECRET_KEY']='mysupersecretkey'
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://nnwhxofswdonpp:5fcdee82cc541c3cdbbdce26371c883a630600754bf82d0583faf1f57c76b289@ec2-54-164-22-242.compute-1.amazonaws.com:5432/d2phg86024slai'
 db=SQLAlchemy(app)
+
 from models import Task
-from datetime import datetime
 
 # the index route show the home/index page
 @app.route('/')
@@ -22,10 +24,10 @@ def addTask():
     #get request data from post request[description, status]
     request_task=request.json   
     #convert date into correct format
-    task_creation_datetime=datetime.strptime(request_task["date"],"%d %b %Y, %H:%M:%S")
+    task_creation_datetime=datetime.strptime(request_task["date"],"%d %b %Y, %H:%M:%S %p")
 
     task_details={"id":request_task.get("id"),"description":request_task.get("description"),"complete":request_task.get("status"),"date_created":task_creation_datetime}
-    #check if the task is already present
+    #check if the Task is already present
     
     # alreadyPresent=Task.query.filter_by(description=task_details["description"]).all()
     alreadyPresent=Task.query.filter(func.lower(Task.description)==task_details["description"].lower()).all()
@@ -47,7 +49,7 @@ def getTasks():
     #query database by status, where incomplete tasks are fetched
     incomplete_task=Task.query.filter_by(status=False).order_by("date_created").all()
 
-    complete_task=Task.query.filter_by(status=True).order_by(desc("date_completed")).all()
+    complete_task=Task.query.filter_by(status=True).order_by("date_completed").all()
 
     # print(len(complete_task))
     print(len(incomplete_task))
@@ -65,7 +67,9 @@ def getTasks():
             temp["id"]=i.id
             temp["description"]=i.description
             temp["date_updated"]=i.date_completed
+            temp["date_created"]=i.date_created
             task_completed.append(temp)
+        print(task_completed)
         return jsonify([{"status":"OK","completed":"False","incompleteTasks":task_incomplete,"completeTask":task_completed}])
     #if incompleteTask are zero and complete task are more
     elif len(incomplete_task)<=0 and len(complete_task)>0:
@@ -75,6 +79,7 @@ def getTasks():
             temp={}
             temp["id"]=i.id
             temp["description"]=i.description
+            temp["date_created"]=i.date_created
             temp["date_updated"]=i.date_completed
             task_completed.append(temp)
         return jsonify([{"status":"OK","completed":"True","incompleteTasks":None,"completeTask":task_completed}])
@@ -101,7 +106,7 @@ def updateStatus():
     #get task by id
     data=Task.query.filter_by(id=request_params.get("value")).first()
     # print(data)
-    date_completed=datetime.strptime(request_params["updatedDate"],"%d %b %Y, %H:%M:%S")
+    date_completed=datetime.strptime(request_params["updatedDate"],"%d %b %Y, %H:%M:%S %p")
     # check if the task is completed or not and set accordingly the completed date
     if data.status==True:
         data.status=False
@@ -110,9 +115,11 @@ def updateStatus():
         data.status=True
         data.date_completed=date_completed
     # print(data)
-    send_data={"id":data.id,"description":data.description,"date_updated":data.date_completed}
-    #commit the changes
     db.session.commit()
+    send_data={"id":data.id,"description":data.description,"date_updated":data.date_completed,"date_created":data.date_created}
+    print(data.status)
+    #commit the changes
+    
     return jsonify([{"status":"OK","completed":data.status,"task":send_data}])
 
 

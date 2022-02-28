@@ -5,7 +5,7 @@
             //if checkbox is selected then strikeout text and send request
             if(ev.target.tagName==='INPUT'&&ev.target.type==="checkbox"){
                 let status=await sendCompletedList(ev.target.closest('div').parentElement.querySelector('INPUT').id);
-                console.log(status[0]);
+                 
                 if(status[0]["status"]=="OK"){
                 if(status[0]["completed"]==true){
                     ev.target.closest('div').parentElement.remove();
@@ -27,8 +27,8 @@
                     window.alert("Cannot Edit completed task, Uncheck Task first");
                 }
                 else{
-                    // window.alert("here");
-                    // console.log(ev.target.closest('div').querySelector('INPUT'));
+                    
+                    //provide the user, the ability to edit the input text
                     ev.target.closest('div').parentElement.querySelector('INPUT[type="text"]').readOnly=false;
                     ev.target.closest('div').parentElement.querySelector('INPUT[type="text"]').focus();
                 }
@@ -41,6 +41,7 @@
                 //delete from site wait for confirmation from database
                 let status=await deleteTask(ev.target.closest('div').parentElement.querySelector('input').id);
                 if(status["status"]=="OK"){
+                    //delete from the list
                     ev.target.closest('div').parentElement.remove();
                 }
             }
@@ -50,10 +51,18 @@
         let deleteCompletedTask=document.querySelector('.completed-list');
         deleteCompletedTask.addEventListener('click',async function(ev){
             if(ev.target.tagName==='BUTTON'&&ev.target.className=='deleteCompletedTask'){
-                //delete from csv wait for confirmation from database
+                //delete from database wait for confirmation from database
                 let status=await deleteTask(ev.target.closest('div').querySelector('SPAN').id);
                 if(status["status"]=="OK"){
+                    //  
+                    // save the parentelement of completed list in case the list for particular date becomes empty after deletion
+                    let parentNameElement=ev.target.closest('div').parentElement;
+                    //remove the selected task
                     ev.target.closest('div').remove();
+                    //if the task list becomes empty remove header
+                    if(parentNameElement.childNodes.length ==1){
+                        parentNameElement.remove();
+                    }
                 }
             }
 
@@ -62,7 +71,8 @@
         //post request for updating status in database
         function sendCompletedList(val){
             let date= new Date();
-            const formattedDate = date.toLocaleString("en-GB", {
+            //send the formatted date
+            const formattedDate = date.toLocaleString("en-IN", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
@@ -70,7 +80,7 @@
                 minute: "2-digit",
                 second:"2-digit"
               });
-            console.log(formattedDate);
+            // ""(formattedDate);
             const send_data={
                 value:val,
                 updatedDate:formattedDate
@@ -89,7 +99,7 @@
         }
         //post request for deleting task from database
         function deleteTask(val){
-            // console.log(val);
+            // 
            return fetch('/deleteTask',{
                 method:'POST',
                 body:JSON.stringify(val),
@@ -102,16 +112,31 @@
         }
         //insert the task after getting confirmation from database
         function insertTaskComplete(item,taskDetails,pageLoad){
-            // let parentDiv=document.getElementById('completed-list');
-            console.log(taskDetails.childNodes)
-            if(taskDetails.childNodes.length===3){
+            // check if there are already task present for the current date, if no then create element and append else only create element
+            let dateCreated;
+            if(!document.getElementById((new Date(item["date_updated"]+"+0530")).toDateString())){
                 
+                 dateCreated=document.createElement('div')
+                //  
+                dateCreated.id=(new Date(item["date_updated"]+"+0530")).toDateString();
+                //  
+                let headerName=document.createElement('h4');
+                headerName.innerHTML=dateCreated.id;
+                dateCreated.appendChild(headerName);
+                //  
+                
+            }
+            else{
+                dateCreated=document.getElementById((new Date(item["date_updated"]+"+0530")).toDateString());
+            }
+            //check if the completed task list is empty or not
+            if(taskDetails.childNodes.length===3){
                     let headerCompleted=document.createElement('h3');
                     headerCompleted.innerHTML="Completed tasks";
                     taskDetails.appendChild(headerCompleted)
             }
-            let divElement=document.createElement('div');
-            divElement.className="task-list"
+            let ListCompletedElement=document.createElement('div');
+            ListCompletedElement.className="task-list"
 
             let spanElement=document.createElement('span');
             spanElement.id=item['id'];
@@ -122,36 +147,45 @@
             buttonElement.className="deleteCompletedTask"
             // buttonElement.onclick
 
-            // buttonElement.onclick=deleteTask(item['id']);
-            divElement.appendChild(spanElement);
+            let timeElement=document.createElement('b');
+            timeElement.innerHTML=(new Date(item["date_updated"]+"+0530")).toLocaleString('en-IN',{hour12:true}).split(' ').slice(1,2).join(' ');
             
-            divElement.appendChild(buttonElement);
+            timeElement.className="time-completed";
+            // buttonElement.onclick=deleteTask(item['id']);
+            ListCompletedElement.appendChild(spanElement);
+            
+            ListCompletedElement.appendChild(buttonElement);
+            
             let undoElement;
             let currTime=new Date()
             let completedate=new Date(item["date_updated"]+"+0530")
-            console.log(item)
-            console.log(completedate)
-            console.log(currTime)
-            console.log(currTime.getTime()-completedate.getTime());
-
+             
+             
+             
+             
+            //check if the time elapsed is greater than 25 seconds or not
             if(pageLoad==true&&currTime.getTime()-completedate.getTime()<=25000){
 
                 undoElement=document.createElement('button')
                 undoElement.innerHTML='UNDO';
-                // console.log("here")
-                // console.log(item)
+                //  
+                //  
+                // undoElement.className="undo-button";
                 undoElement.onclick=()=>{undoTask(item);}
                 // if(currTime.getTime()-completedate.getTime()<=25){
-                    setTimeout(()=>{undoElement.disabled=true;},25000-(currTime.getTime()-completedate.getTime()))
+                    setTimeout(()=>{undoElement.classList.toggle('change-color');undoElement.disabled=true;
+                    },25000-(currTime.getTime()-completedate.getTime()))
                 
                 // else{
                 // setTimeout(()=>{undoElement.disabled=true;},25000)
                 // }
 
-                divElement.appendChild(undoElement);
+                ListCompletedElement.appendChild(undoElement);
             }
-            
-            taskDetails.appendChild(divElement);
+            ListCompletedElement.appendChild(timeElement);
+            dateCreated.appendChild(ListCompletedElement);
+            taskDetails.appendChild(dateCreated);
+            // taskDetails.appendChild(divElement);
             
             
         }
@@ -159,19 +193,20 @@
         async function undoTask(item){
             // if(item["date_completed"])
             // let currDate=new Date();
-            // console.log(currDate.getTime())
+            //  
             // let completedate=new Date(item["date_completed"]+"+0530")
 
-            // console.log(completedate.getTime())
-            // console.log(item["date_created"])
+            //  
+            //  
             let incomList=document.getElementById("todolist");
             
             let status=await sendCompletedList(item["id"]);
-            console.log(status);
-
+             
+            //wait for status to remove the item from completed list
             if(status[0]["status"]==="OK"){
+                 
                 document.getElementById(item["id"]).closest("div").remove()
-            insertTaskIncomplete(item,incomList);
+                insertTaskIncomplete(item,incomList);
             }
            
             // document.getElementById(item["id"]).closest("div").remove()
@@ -220,7 +255,7 @@
             .then(response=>response.json())
             .then(json=>{
                    
-                // console.log(json);
+                //  
                 //if status is ok and no incomplete task left
                 if(json[0]["status"]==="OK"&&json[0]["completed"]=="True"){
                     
@@ -297,7 +332,7 @@
             .then(json=>{
                 e.target.readOnly=true;
                 e.target.blur();
-                // console.log(json);
+                //  
             })
                 
             }
@@ -307,7 +342,7 @@
             if(document.getElementById("description").value!='')
             {   
                 let date=new Date();
-                const formattedDate = date.toLocaleString("en-GB", {
+                const formattedDate = date.toLocaleString("en-IN", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -315,17 +350,19 @@
                     minute: "2-digit",
                     second:"2-digit"
                   });
+                  console.log(formattedDate);
+                
                 const data = {
                 description: document.getElementById("description").value,
                 id:uuidv4(),
                 status: 0,
                 date:formattedDate,
             };
-            // console.log(data);
-            // console.log(data["id"]);
+            //  
+            //  
             let checkResponse=await addDataToDatabase(data);
             if(checkResponse[0]["status"]==="OK"&&checkResponse[1]["inserted"]==="True"){
-            console.log(checkResponse);
+             
             let divElement=document.createElement('div');
             let taskDiv=document.createElement('div');
             taskDiv.className="taskName";
@@ -362,7 +399,7 @@
         function addDataToDatabase(data){
             document.getElementById("description").value='';
             let send_data=JSON.stringify(data)
-            // console.log(send_data)
+            //  
            return fetch("/add-todo",{
                 method:"POST",
                 body:send_data,
@@ -374,7 +411,7 @@
         
         }
             
-            // console.log(responseSend);
+            //  
             
             
         }
