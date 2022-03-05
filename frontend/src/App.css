@@ -1,0 +1,223 @@
+*{
+  margin:0;
+  padding:0;
+}
+body{
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 100;
+}
+.main-container{
+  width:750px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 60px auto;
+  justify-content: space-between;
+  border-radius: 5px;
+  box-shadow:
+0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+0 12.5px 10px rgba(0, 0, 0, 0.06),
+0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+0 41.8px 33.4px rgba(0, 0, 0, 0.086),
+0 100px 80px rgba(0, 0, 0, 0.12)
+;
+
+}
+.heading{
+  margin-bottom:20px;
+  font-size: 1.2em;
+}
+.list-form{
+  display: flex;
+  flex-direction:row;
+  flex-wrap: nowrap;
+  width:500px;
+  margin:auto;
+  /* justify-content: space-between; */
+}
+
+input[type=text]{
+  padding: 5px 5px 5px 5px;
+  font-size: 1em;
+  width: 80%;
+}
+button{
+  width: 20%;
+  font-weight: 400;
+  font-size: 1em;
+  background-color:#0f9cee;
+  color: white;
+}
+input[type=button]{
+  width: 20%;
+  font-weight: 400;
+  font-size: 1em;
+  background-color:#0f9cee;
+  color: white;
+}
+.todolist{
+  margin-top:30px;
+  width: 500px;
+  padding:5px;
+  border: 1px solid beige;
+  border-radius: 3%;
+  background-color: rgb(250, 250, 250);
+}
+.task{
+  display: flex;
+  flex-direction: row;
+  /* justify-content: space-between; */
+  /* border: 1px solid rgb(148, 148, 148); */
+  padding: 5px 5px 5px 5px;
+  border-radius: 2.5%;
+  align-items: center;
+  /* flex-wrap: nowrap; */
+  margin: 5px 0 5px 0;
+  background-color: rgb(255, 255, 255);
+}
+.task span{
+  cursor:pointer;
+  text-align: justify;
+  width:85%;
+}
+
+.task button{
+  color: white;
+  background-color:rgb(0, 162, 255);
+  width: 35px;
+  /* padding:5px; */
+  font-weight: 500;
+  font-size: 0.9em;
+  /* color: white; */
+  margin:2px 2px;
+}
+.task form{
+  width: 80%;
+}
+.task input[type="text"]{
+  border: 0;
+  font-weight: bold;
+  font-size: 1.2em;
+  width: 100%;
+  background-color: rgb(240, 170, 170);
+
+}
+.task input[type="checkbox"]{
+  text-align: right;
+  width: 30px;
+}
+.taskName{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: right;
+  align-items: center;
+  width:20%;
+  text-align: right;
+}
+.task input.checked{
+  text-decoration: line-through;
+  background-color: rgb(144, 226, 144);
+}
+.completed-list{
+  margin: 25px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  padding: 15px 5px 15px 5px;
+  background-color:rgb(255, 255, 255);
+   width: 500px;
+  /* margin: auto; */ 
+}
+.completed-list h3{
+  margin: 5px;
+  font-weight: 100;
+  text-align: center;
+}
+.task-list{
+  display: flex;
+  flex-direction: row;
+  /* background-color:rgb(144, 226, 144); */
+  /* border:0.5px solid; */
+  border-radius: 2.5px;
+  padding: 5px 5px 5px 5px;
+  margin: 1px;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+
+}
+/* .task-list{
+  padding:5px;
+ 
+  
+  margin-bottom:5px;
+
+} */
+.task-description{
+  width: 80%;
+  display:flex;
+  flex-wrap:wrap;
+  flex-direction: column;
+  background-color: rgb(144, 226, 144);
+  padding: 3px;
+  justify-content: space-between;
+  /* margin-top: 10px; */
+  /* padding-top: 10px; */
+}
+
+.undoTask{
+  width:50px;
+  visibility: visible;
+}
+.deleteCompletedTask{
+  
+  width: 25px;
+}
+.task-list button{
+  color:white;
+  background-color:rgb(0, 162, 255) ;
+  text-align: center;
+  font-size: 0.9em;    
+  font-weight:400;
+  margin-left:2px;
+  padding: 2px;
+  /* width: 25px; */
+
+  /* float: right; */
+}
+
+.change-task{
+  align-self: center;
+}
+.task-list button:disabled,
+button[disabled]{
+  background-color: rgb(136, 136, 136);
+}
+
+.task-list .time-completed{
+  /* float: right; */
+  /* colo */
+
+  text-align: center;
+  margin:2px 0 6px 0;
+  line-height:normal;
+  font-size: 0.9em;
+  /* background-color:red; */
+}
+.time-completed span{
+  margin:2px;
+  background-color: rgb(238, 48, 48);
+}
+.task-list span{
+  font-size: 1.2em;
+  /* word-wrap:break-word; */
+}
+
+.task-list h3{
+  padding: 10px;
+}
+.undoableTask{
+  width: 50px;
+  visibility:hidden;
+}
